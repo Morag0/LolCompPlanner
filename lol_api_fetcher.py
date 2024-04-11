@@ -2,19 +2,60 @@ import requests
 import pandas as pd
 import json
 import time
+import csv
 
 
-api_key = "RGAPI-991551fd-437e-4c63-8a72-b91bdfcbb990"
-region = "EUW"
+api_key = "RGAPI-f737bad4-87f2-48fb-b2a0-a6a2f4f064a5"
+region = "euw1"
 
-
+#Function that pulls a page of summoner IDs ranked Diamond 1-4
 def find_summoner_id (div, tier, page):
     api_url_sum = "https://{}.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/{}/{}?page={}&api_key={}".format(region,div,tier,page,api_key)
-    list_of_profiles = requests.GET(api_url_sum).json()
+    list_of_profiles = requests.get(api_url_sum).json()
     num_profiles = len(list_of_profiles)
     summonerID_list = []
 
     for prof in range(0,num_profiles):
-        summonerID_list.append(list_of_profiles[prof]['summonerID'])
+        summonerID_list.append(list_of_profiles[prof]['summonerId'])
+
+    df_sID = pd.DataFrame(summonerID_list, columns=["Summoner ID"])
+    df_sID.to_csv('summonerID.csv', mode= 'a')
+
+#For loop that calls to find_summoner_id with what Division and tier we are looking for
+for tier in ["I"]:
+    for page in range(1, 2):
+        time.sleep(1.5)
+        find_summoner_id("DIAMOND", tier, page)
+
+
+
+summoner_IDs = pd.read_csv("summonerID.csv")
+puuid_list = []
+
+"""
+#Function that finds the puuid given a summoner id
+def find_summoner_puuid (summoner_id):
+    api_url_puuid = "https://{}.api.riotgames.com/lol/summoner/v4/summoners/{}?api_key={}".format(region, summoner_id, api_key)
+    summoner_info = requests.get(api_url_puuid).json()
+    puuid_list.append(summoner_info["puuid"])
 
     
+    df_pID = pd.DataFrame(puuid_list, columns=["Puuid"])
+    df_pID.to_csv('puuid.csv', mode='a', index=False)
+
+
+summID_list = summoner_IDs["Summoner ID"]
+for summoner_id in range(0, len(summID_list)):
+    time.sleep(1.5)
+    if summID_list[summoner_id] == "Summoner ID":
+        pass
+    else:
+        find_summoner_puuid(summID_list[summoner_id])
+
+
+
+print("Done fetching IDs")
+
+
+puuids = pd.read_csv("puuid.csv")
+"""
