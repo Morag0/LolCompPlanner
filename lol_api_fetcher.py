@@ -8,7 +8,7 @@ import csv
 api_key = "RGAPI-0c181667-494e-418a-93ae-956f20d7b213"
 region = "euw1"
 
-
+"""
 summonerID_list = []
 #Function that pulls a page of summoner IDs ranked Diamond 1-4
 def find_summoner_id (div, tier, page):
@@ -53,7 +53,32 @@ for summoner_id in range(0, len(summID_list)):
 
 df_pID = pd.DataFrame(puuid_list, columns=["Puuid"])
 df_pID.to_csv('puuid.csv', mode='a', index=False)
-
+"""
 
 
 puuids = pd.read_csv("puuid.csv")
+type = "ranked"
+match_list = []
+fetch_errors = []
+list_of_puuids = puuids["Puuid"]
+
+def find_match_ids(puuid, type):
+    api_url_matchid = "https://{}.api.riotgames.com/lol/match/v5/matches/by-puuid/{}/ids?type={}&start=0&count=20&api_key={}".format(region, puuid, type, api_key)
+    match_history = requests.get(api_url_matchid).json()
+
+    for match_id in match_history:
+        match_list.append(match_id)
+
+for puuid in range(0, len(list_of_puuids)):
+    time.sleep(1.5)
+    if list_of_puuids[puuid] == "Puuid":
+        pass
+    else:
+        find_match_ids(list_of_puuids[puuid], type)
+        print("Fetched match_id")
+
+df_mID = pd.DataFrame(match_list, columns=["Match ID"])
+df_mID.to_csv('matchID.csv', mode = 'a', index=False)
+
+print("All ids fetched")
+
