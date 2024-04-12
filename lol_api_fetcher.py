@@ -3,12 +3,15 @@ import pandas as pd
 import json
 import time
 import csv
+from dotenv import load_dotenv
+import os
 
 
-api_key = "RGAPI-73cc191b-aa7e-44b0-bd14-9026232dad31"
+load_dotenv('keys.env')
+api_key = os.getenv('API_KEY')
+print(api_key)
 region = "euw1"
-
-
+"""
 summonerID_list = []
 #Function that pulls a page of summoner IDs ranked Diamond 1-4
 def find_summoner_id (div, tier, page):
@@ -62,7 +65,7 @@ for summoner_id in range(0, len(summID_list)):
 
 df_pID = pd.DataFrame(puuid_list, columns=["Puuid"])
 df_pID.to_csv('puuid.csv', mode='a', index=False)
-
+"""
 
 
 puuids = pd.read_csv("puuid.csv")
@@ -71,6 +74,7 @@ match_list = []
 fetch_errors = []
 list_of_puuids = puuids["Puuid"]
 region2 = "europe"
+count = 0
 
 def find_match_ids(puuid, type):
     api_url_matchid = "https://{}.api.riotgames.com/lol/match/v5/matches/by-puuid/{}/ids?type={}&start=0&count=20&api_key={}".format(region2, puuid, type, api_key)
@@ -87,8 +91,9 @@ for puuid in range(0, len(list_of_puuids)):
     if list_of_puuids[puuid] == "Puuid":
         pass
     else:
+        count = count+1
         find_match_ids(list_of_puuids[puuid], type)
-        print("Fetching match_id")
+        print(f"Fetching match_id: {count}")
 
 df_mID = pd.DataFrame(match_list, columns=["Match ID"])
 df_mID.to_csv('matchID.csv', mode = 'a', index=False)
